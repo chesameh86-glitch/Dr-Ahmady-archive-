@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Ahmady — Patient Archive</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f3460;--navy2:#1a4a8a;--pale:#e8f0fb;--accent:#4a90d9;
+  --danger:#d94a4a;--success:#2e8b57;--text:#1a1a2e;--muted:#5a6070;
+  --border:#d0daea;--bg:#f2f5fb;--white:#fff;--radius:10px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.screen{display:none}.screen.active{display:block}
+/* TOPBAR */
+.topbar{background:var(--navy);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(15,52,96,.3)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.brand-text{font-size:13px;font-weight:600}.brand-sub{font-size:10px;opacity:.7}
+.topbar-right{display:flex;gap:8px;align-items:center}
+/* BUTTONS */
+.btn{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#3a7fc8}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}.btn-outline:hover{background:var(--pale)}
+.btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#c03a3a}
+.btn-ghost{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25)}.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-icon{background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;font-size:14px;color:var(--danger)}.btn-icon:hover{background:#fde8e8}
+/* LOGIN */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f3460,#1a4a8a)}
+.login-box{background:#fff;border-radius:16px;padding:40px 32px;width:90%;max-width:380px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{font-size:48px;margin-bottom:12px}
+.login-title{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--muted);margin-bottom:28px}
+.login-box input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;outline:none;text-align:center;letter-spacing:4px;margin-bottom:14px}
+.login-box input:focus{border-color:var(--accent)}
+.login-error{color:var(--danger);font-size:12px;margin-top:8px}
+/* HOME */
+.page-content{max-width:720px;margin:0 auto;padding:16px}
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:#fff;border-radius:var(--radius);padding:14px;text-align:center;border:1px solid var(--border)}
+.stat-num{font-size:24px;font-weight:700;color:var(--navy)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.search-row{display:flex;gap:8px;margin-bottom:14px}
+.search-row input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none}
+.search-row input:focus{border-color:var(--accent)}
+.new-btns{display:flex;gap:10px;margin-bottom:18px}
+.new-btn{flex:1;padding:14px;border:2px dashed var(--border);border-radius:var(--radius);background:#fff;cursor:pointer;text-align:center;transition:all .2s}
+.new-btn:hover{border-color:var(--accent);background:var(--pale)}
+.new-btn .nb-icon{font-size:26px;margin-bottom:4px}
+.new-btn .nb-title{font-size:13px;font-weight:600;color:var(--navy)}
+.new-btn .nb-sub{font-size:11px;color:var(--muted)}
+.sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px}
+/* PATIENT CARDS */
+.patient-card{background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid var(--border);transition:all .15s}
+.patient-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(74,144,217,.15);transform:translateY(-1px)}
+.pc-name{font-size:15px;font-weight:600;color:var(--navy)}
+.pc-meta{font-size:12px;color:var(--muted);margin:2px 0 5px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-blue{background:#e0edff;color:#1a4a8a}.badge-teal{background:#e0f5ef;color:#1a6b50}
+.pc-date{font-size:11px;color:var(--muted)}.pc-arrow{font-size:20px;color:var(--border);margin-top:4px}
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+/* FORM */
+.form-content{max-width:800px;margin:0 auto;padding:16px 16px 60px}
+.form-section{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.form-section h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--pale)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;font-weight:600;color:var(--muted)}
+.input-f,.select-f,.textarea-f{padding:9px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;color:var(--text);background:#fff;transition:border-color .2s;width:100%}
+.input-f:focus,.select-f:focus,.textarea-f:focus{border-color:var(--accent)}
+.textarea-f{resize:vertical;min-height:65px}
+/* DOP TABLE */
+.dop-wrap{overflow-x:auto;margin-top:8px}
+table.dop{width:100%;border-collapse:collapse;font-size:11px;min-width:680px}
+table.dop th{background:var(--navy);color:#fff;padding:6px 4px;text-align:center;font-size:10px}
+table.dop th.gr{background:#1a6080}
+table.dop td{padding:3px 2px;border-bottom:1px solid var(--border)}
+.dop-i{width:100%;border:1px solid var(--border);border-radius:4px;padding:4px;font-size:11px;text-align:center;outline:none}
+.dop-i:focus{border-color:var(--accent)}
+.dop-s{width:100%;border:1px solid var(--border);border-radius:4px;padding:3px;font-size:11px;outline:none}
+.add-row{margin-top:6px;background:none;border:1px dashed var(--accent);color:var(--accent);padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px}
+/* POINTS */
+.point-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.point-num{min-width:20px;font-size:12px;font-weight:700;color:var(--navy)}
+.add-point{background:none;border:1px dashed var(--accent);color:var(--accent);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;margin-top:4px}
+/* UPLOAD */
+.upload-area{border:2px dashed var(--border);border-radius:8px;padding:18px;text-align:center;cursor:pointer;color:var(--muted);font-size:13px;transition:all .2s}
+.upload-area:hover{border-color:var(--accent);background:var(--pale)}
+.upload-area input{display:none}
+/* VIEW */
+.view-content{max-width:720px;margin:0 auto;padding:16px}
+.view-header{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;border:1px solid var(--border)}
+.view-name{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.view-fileno{font-size:12px;color:var(--muted);margin-bottom:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info-item{background:var(--bg);border-radius:6px;padding:8px 12px}
+.info-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.info-value{font-size:13px;font-weight:500;margin-top:1px}
+.view-card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:10px;border:1px solid var(--border)}
+.view-card h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--navy);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.view-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px}
+.img-thumb{border-radius:6px;overflow:hidden;border:1px solid var(--border);cursor:pointer}
+.img-thumb img{width:100%;height:70px;object-fit:cover;display:block}
+.img-name{font-size:9px;color:var(--muted);padding:2px 4px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a2a3a;color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1}.toast.error{background:var(--danger)}.toast.info{background:var(--accent)}
+/* PRINT REPORT */
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{position:fixed;top:0;left:0;width:100%;padding:15mm}
+}
+@media(max-width:600px){
+  .form-grid{grid-template-columns:1fr}
+  .info-grid{grid-template-columns:1fr}
+  .new-btns{flex-direction:column}
+  .view-actions{flex-direction:column}
+  .stats-bar{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">🏥</div>
+    <div class="login-title">Dr. Ahmady Archive</div>
+    <div class="login-sub">Daleel Al Jamal Medical Center · Riyadh</div>
+    <input type="password" id="pinInput" placeholder="Enter PIN" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="btn btn-navy" style="width:100%" onclick="doLogin()">Login</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="homeScreen" class="screen">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🏥</div>
+      <div><div class="brand-text">Dr. Ahmady — Patient Archive</div><div class="brand-sub">Daleel Al Jamal Medical Center · Riyadh</div></div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="page-content">
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">Total Patients</div></div>
+      <div class="stat-card"><div class="stat-num" id="statICI">0</div><div class="stat-label">Penile Doppler</div></div>
+      <div class="stat-card"><div class="stat-num" id="statScrotal">0</div><div class="stat-label">Scrotal</div></div>
+    </div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Search by name, mobile, or file number...">
+      <button class="btn btn-primary" onclick="doSearch()">Search</button>
+    </div>
+    <div class="new-btns">
+      <div class="new-btn" onclick="openForm('doppler-injection')">
+        <div class="nb-icon">💉</div>
+        <div class="nb-title">Penile Doppler (ICI)</div>
+        <div class="nb-sub">With injection</div>
+      </div>
+      <div class="new-btn" onclick="openForm('scrotal')">
+        <div class="nb-icon">🔬</div>
+        <div class="nb-title">Scrotal / Varicocele</div>
+        <div class="nb-sub">Without injection</div>
+      </div>
+    </div>
+    <div class="sec-title">All Patients</div>
+    <div id="patientList"></div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div id="formScreen" class="screen">
+  <div class="topbar">
+    <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
+    <div class="brand-text" id="formTitle">New Patient</div>
+    <div style="width:60px"></div>
+  </div>
+  <input type="hidden" id="examTypeHidden">
+  <div class="form-content">
+
+    <!-- Patient Info -->
+    <div class="form-section">
+      <h3>Patient Information</h3>
+      <div class="form-grid">
+        <div class="field"><label>Patient Name *</label><input id="f_name" class="input-f" type="text" placeholder="Full name"></div>
+        <div class="field"><label>Mobile *</label><input id="f_mobile" class="input-f" type="tel" placeholder="05XXXXXXXX"></div>
+        <div class="field"><label>Age (years)</label><input id="f_age" class="input-f" type="number" placeholder="e.g. 45"></div>
+        <div class="field"><label>Exam Date</label><input id="f_date" class="input-f" type="date"></div>
+        <div class="field"><label>File / Record No.</label><input id="f_fileno" class="input-f" type="text"></div>
+        <div class="field"><label>Referring Doctor</label><input id="f_refdoc" class="input-f" type="text" placeholder="My Patient"></div>
+        <div class="field form-full"><label>Chief Complaint (C/O)</label><input id="f_complaint" class="input-f" type="text" placeholder="e.g. Erectile dysfunction..."></div>
+        <div class="field form-full"><label>History</label><textarea id="f_history" class="textarea-f" placeholder="Relevant medical history..."></textarea></div>
+        <div class="field">
+          <label>Center / Clinic</label>
+          <select id="f_center" class="select-f">
+            <option value="daleel">Daleel Al Jamal Medical Center</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ICI SECTIONS -->
+    <div class="form-section section-ici">
+      <h3>I — Gray-Scale Findings (Pre-Injection)</h3>
+      <div class="form-grid">
+        <div class="field form-full">
+          <label>Corpora Cavernosa</label>
+          <select id="f_corpora" class="select-f">
+            <option value="">Select...</option>
+            <option>Normal echotexture bilaterally</option>
+            <option>Some foci of fibrosis noted bilaterally</option>
+            <option>Significant fibrosis noted bilaterally</option>
+            <option>Plaques noted (Peyronie's disease)</option>
+            <option>Heterogeneous echotexture</option>
+          </select>
+        </div>
+        <div class="field"><label>Left CA Diameter (mm)</label><input id="f_lca" class="input-f" type="number" step="0.1" placeholder="0.0"></div>
+        <div class="field"><label>Right CA Diameter (mm)</label><input id="f_rca" class="input-f" type="number" step="0.1" placeholder="0.0"></div>
+      </div>
+    </div>
+
+    <div class="form-section section-ici">
+      <h3>Flaccid State — PSV</h3>
+      <div class="form-grid">
+        <div class="field"><label>Left CA PSV (cm/s)</label><input id="f_psvL" class="input-f" type="number" step="0.1" placeholder="0.0"></div>
+        <div class="field"><label>Right CA PSV (cm/s)</label><input id="f_psvR" class="input-f" type="number" step="0.1" placeholder="0.0"></div>
+      </div>
+    </div>
+
+    <div class="form-section section-ici">
+      <h3>II — Pharmaco-Dynamic ICI Readings</h3>
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="field">
+          <label>Drug</label>
+          <select id="f_drug" class="select-f">
+            <option>Alprostadil (Prostaglandin E1)</option>
+            <option>Papaverine</option><option>Trimix</option><option>Bimix</option>
+          </select>
+        </div>
+        <div class="field"><label>Dose (µg)</label><input id="f_dose" class="input-f" type="number" placeholder="e.g. 20"></div>
+      </div>
+      <div class="dop-wrap">
+        <table class="dop">
+          <thead>
+            <tr>
+              <th rowspan="2">Time</th><th rowspan="2">EHS</th>
+              <th colspan="4">Right Cavernosal Artery</th>
+              <th colspan="4" class="gr">Left Cavernosal Artery</th>
+              <th rowspan="2"></th>
+            </tr>
+            <tr>
+              <th>CA mm</th><th>PSV</th><th>EDV</th><th>RI</th>
+              <th class="gr">CA mm</th><th class="gr">PSV</th><th class="gr">EDV</th><th class="gr">RI</th>
+            </tr>
+          </thead>
+          <tbody id="dopBody"></tbody>
+        </table>
+      </div>
+      <button class="add-row" onclick="addDopRow()">+ Add Row</button>
+    </div>
+
+    <!-- SCROTAL SECTIONS -->
+    <div class="form-section section-scrotal" style="display:none">
+      <h3>Testicular Findings</h3>
+      <div class="form-grid">
+        <div class="field"><label>Right Testis Volume (ml)</label><input id="f_rtVol" class="input-f" type="number" step="0.1"></div>
+        <div class="field"><label>Right Echogenicity</label>
+          <select id="f_rtEcho" class="select-f"><option value="">Select...</option><option>Normal homogeneous</option><option>Heterogeneous</option><option>Increased echogenicity</option><option>Decreased echogenicity</option></select>
+        </div>
+        <div class="field form-full"><label>Right Testis Findings</label><input id="f_rtFind" class="input-f" type="text" placeholder="e.g. No focal lesion"></div>
+        <div class="field"><label>Left Testis Volume (ml)</label><input id="f_ltVol" class="input-f" type="number" step="0.1"></div>
+        <div class="field"><label>Left Echogenicity</label>
+          <select id="f_ltEcho" class="select-f"><option value="">Select...</option><option>Normal homogeneous</option><option>Heterogeneous</option><option>Increased echogenicity</option><option>Decreased echogenicity</option></select>
+        </div>
+        <div class="field form-full"><label>Left Testis Findings</label><input id="f_ltFind" class="input-f" type="text" placeholder="e.g. No focal lesion"></div>
+        <div class="field form-full"><label>Epididymis</label>
+          <select id="f_epid" class="select-f"><option value="">Select...</option><option>Normal bilaterally</option><option>Right epididymal cyst</option><option>Left epididymal cyst</option><option>Bilateral epididymal cysts</option><option>Epididymo-orchitis right</option><option>Epididymo-orchitis left</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section section-scrotal" style="display:none">
+      <h3>Varicocele Assessment</h3>
+      <div class="form-grid">
+        <div class="field"><label>Side</label>
+          <select id="f_vSide" class="select-f"><option value="">Select...</option><option>Left</option><option>Bilateral</option><option>Right (rare)</option><option>No varicocele detected</option></select>
+        </div>
+        <div class="field"><label>Grade</label>
+          <select id="f_vGrade" class="select-f"><option value="">Select...</option><option>Grade I (subclinical)</option><option>Grade II (moderate)</option><option>Grade III (severe)</option></select>
+        </div>
+        <div class="field"><label>Vein Diameter at Rest (mm)</label><input id="f_vRest" class="input-f" type="number" step="0.1"></div>
+        <div class="field"><label>Diameter During Valsalva (mm)</label><input id="f_vValsa" class="input-f" type="number" step="0.1"></div>
+        <div class="field form-full"><label>Doppler Findings</label>
+          <select id="f_vDop" class="select-f"><option value="">Select...</option><option>Reflux on Valsalva maneuver</option><option>Significant reflux on Valsalva</option><option>Spontaneous reflux without Valsalva</option><option>No reflux detected</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHARED -->
+    <div class="form-section">
+      <h3>Additional Notes (NB)</h3>
+      <textarea id="f_notes" class="textarea-f" placeholder="e.g. After walking 5 minutes, erection grade increased to E2..."></textarea>
+    </div>
+
+    <div class="form-section">
+      <h3>Summary</h3>
+      <div id="summaryList"></div>
+      <button class="add-point" onclick="addSummary()">+ Add Point</button>
+    </div>
+
+    <div class="form-section">
+      <h3>Conclusion</h3>
+      <div id="conclusionList"></div>
+      <button class="add-point" onclick="addConclusion()">+ Add Point</button>
+    </div>
+
+    <div class="form-section">
+      <h3>Ultrasound Images</h3>
+      <label class="upload-area">
+        <input type="file" id="imgUpload" multiple accept="image/*">
+        <div>📷 Tap to upload images</div>
+        <div style="font-size:11px;margin-top:4px">Multiple files allowed</div>
+      </label>
+      <div id="imgPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px">
+      <button class="btn btn-outline" onclick="goHome()">Cancel</button>
+      <button class="btn btn-primary" id="saveBtn" onclick="savePatient()">Save Patient</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW -->
+<div id="viewScreen" class="screen">
+  <div class="topbar">
+    <button class="btn btn-ghost btn-sm" onclick="goHome()">← Back</button>
+    <div class="brand-text">Patient Record</div>
+    <div style="width:60px"></div>
+  </div>
+  <div class="view-content">
+    <div class="view-header">
+      <div class="view-name" id="v_name"></div>
+      <div class="view-fileno" id="v_fileno"></div>
+      <div class="info-grid">
+        <div class="info-item"><div class="info-label">Mobile</div><div class="info-value" id="v_mobile"></div></div>
+        <div class="info-item"><div class="info-label">Age</div><div class="info-value" id="v_age"></div></div>
+        <div class="info-item"><div class="info-label">Exam Date</div><div class="info-value" id="v_date"></div></div>
+        <div class="info-item"><div class="info-label">Type</div><div class="info-value" id="v_type"></div></div>
+        <div class="info-item"><div class="info-label">Chief Complaint</div><div class="info-value" id="v_complaint"></div></div>
+        <div class="info-item"><div class="info-label">Center</div><div class="info-value" id="v_center"></div></div>
+      </div>
+    </div>
+    <div class="view-actions">
+      <button class="btn btn-primary" onclick="printReport()">🖨️ Print Report</button>
+      <button class="btn btn-outline" onclick="editPatient()">✏️ Edit</button>
+      <button class="btn btn-danger" onclick="deletePatient()">🗑️ Delete</button>
+    </div>
+    <div class="view-card">
+      <h3>Ultrasound Images</h3>
+      <div class="img-grid" id="v_images"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div id="printArea" style="display:none"></div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC8eJQUgn0wHVM9BND45FgzGuPpZLN55fo",
+  authDomain: "duplex-archive.firebaseapp.com",
+  projectId: "duplex-archive",
+  storageBucket: "duplex-archive.firebasestorage.app",
+  messagingSenderId: "545107391490",
+  appId: "1:545107391490:web:9af5bc4d8deb22e575a31b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const PIN = "1234";
+const CLOUD = 'dfykmkwen';
+const PRESET = 'Dr Ahmady Archive';
+const CENTERS = { daleel: { name: "Daleel Al Jamal Medical Center", nameAr: "مركز دليل الجمال الطبي", city: "Riyadh" }};
+
+let allPatients = [];
+let currentId = null;
+let currentPatient = null;
+
+// ---- AUTH ----
+window.doLogin = () => {
+  const val = document.getElementById('pinInput').value;
+  if(val === PIN){ showScreen('homeScreen'); loadHome(); }
+  else { document.getElementById('loginError').textContent = 'Incorrect PIN'; }
+};
+window.doLogout = () => { showScreen('loginScreen'); document.getElementById('pinInput').value=''; };
+
+// ---- UTILS ----
+function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function toast(msg,type='success'){ const t=document.getElementById('toast'); t.textContent=msg; t.className=`toast show ${type}`; setTimeout(()=>t.className='toast',3000); }
+function genFileNo(){ const n=new Date(); return `DA-${String(n.getFullYear()).slice(-2)}${String(n.getMonth()+1).padStart(2,'0')}${String(n.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*9000+1000)}`; }
+function fmtDate(ts){ if(!ts) return '—'; const d=ts.toDate?ts.toDate():new Date(ts); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+window.goHome = () => loadHome();
+
+// ---- HOME ----
+async function loadHome(){
+  showScreen('homeScreen');
+  document.getElementById('patientList').innerHTML = '<div style="text-align:center;padding:20px;color:#888">Loading...</div>';
+  try {
+    const snap = await getDocs(collection(db,'patients'));
+    allPatients = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    updateStats();
+    renderList(allPatients);
+  } catch(e){ renderList([]); }
+}
+
+function updateStats(){
+  document.getElementById('statTotal').textContent = allPatients.length;
+  document.getElementById('statICI').textContent = allPatients.filter(p=>p.examType==='doppler-injection').length;
+  document.getElementById('statScrotal').textContent = allPatients.filter(p=>p.examType==='scrotal').length;
+}
+
+function renderList(pts){
+  const el = document.getElementById('patientList');
+  if(!pts.length){ el.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>No patients found</p></div>'; return; }
+  el.innerHTML = pts.map(p=>`
+    <div class="patient-card" onclick="viewPatient('${p.id}')">
+      <div>
+        <div class="pc-name">${p.name||'—'}</div>
+        <div class="pc-meta">${p.mobile||'—'} · ${p.fileNo||'—'}</div>
+        <span class="badge ${p.examType==='doppler-injection'?'badge-blue':'badge-teal'}">${p.examType==='doppler-injection'?'Penile Doppler (ICI)':'Scrotal / Varicocele'}</span>
+      </div>
+      <div style="text-align:right">
+        <div class="pc-date">${fmtDate(p.createdAt)}</div>
+        <div class="pc-arrow">›</div>
+      </div>
+    </div>`).join('');
+}
+
+window.doSearch = () => {
+  const t = document.getElementById('searchInput').value.toLowerCase().trim();
+  if(!t){ renderList(allPatients); return; }
+  renderList(allPatients.filter(p=>(p.name||'').toLowerCase().includes(t)||(p.mobile||'').includes(t)||(p.fileNo||'').toLowerCase().includes(t)));
+};
+document.getElementById('searchInput').addEventListener('keyup', e=>{ if(e.key==='Enter') window.doSearch(); if(!e.target.value) renderList(allPatients); });
+
+// ---- FORM ----
+window.openForm = (type) => {
+  currentId = null; currentPatient = null;
+  document.getElementById('formTitle').textContent = type==='doppler-injection'?'New Patient — Penile Doppler (ICI)':'New Patient — Scrotal / Varicocele';
+  document.getElementById('examTypeHidden').value = type;
+  resetForm();
+  showSections(type);
+  document.getElementById('f_fileno').value = genFileNo();
+  document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+  showScreen('formScreen');
+};
+
+function showSections(type){
+  document.querySelectorAll('.section-ici').forEach(el=>el.style.display=type==='doppler-injection'?'':'none');
+  document.querySelectorAll('.section-scrotal').forEach(el=>el.style.display=type==='scrotal'?'':'none');
+}
+
+function resetForm(){
+  document.getElementById('f_name').value=''; document.getElementById('f_mobile').value='';
+  document.getElementById('f_age').value=''; document.getElementById('f_refdoc').value='';
+  document.getElementById('f_complaint').value=''; document.getElementById('f_history').value='';
+  document.getElementById('f_corpora').value=''; document.getElementById('f_lca').value='';
+  document.getElementById('f_rca').value=''; document.getElementById('f_psvL').value='';
+  document.getElementById('f_psvR').value=''; document.getElementById('f_dose').value='';
+  document.getElementById('f_notes').value='';
+  document.getElementById('f_rtVol').value=''; document.getElementById('f_ltVol').value='';
+  document.getElementById('f_rtFind').value=''; document.getElementById('f_ltFind').value='';
+  document.getElementById('dopBody').innerHTML='';
+  for(let i=0;i<5;i++) addDopRow();
+  document.getElementById('summaryList').innerHTML=''; addSummary(); addSummary();
+  document.getElementById('conclusionList').innerHTML=''; addConclusion();
+  document.getElementById('imgUpload').value=''; document.getElementById('imgPreview').innerHTML='';
+}
+
+window.addDopRow = (d={}) => {
+  const times=['5 min','10 min','15 min','20 min','25 min','30 min'];
+  const ehs=['E 0','E 0–1','E 1','E 2','E 3'];
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><select class="dop-s">${times.map(t=>`<option${d.time===t?' selected':''}>${t}</option>`).join('')}</select></td>
+    <td><select class="dop-s"><option value="">—</option>${ehs.map(e=>`<option${d.ehs===e?' selected':''}>${e}</option>`).join('')}</select></td>
+    <td><input class="dop-i" type="number" step="0.1" value="${d.rCA||''}"></td>
+    <td><input class="dop-i" type="number" step="0.1" value="${d.rPSV||''}"></td>
+    <td><input class="dop-i" type="number" step="0.01" value="${d.rEDV||''}"></td>
+    <td><input class="dop-i" type="number" step="0.01" value="${d.rRI||''}"></td>
+    <td><input class="dop-i" type="number" step="0.1" value="${d.lCA||''}"></td>
+    <td><input class="dop-i" type="number" step="0.1" value="${d.lPSV||''}"></td>
+    <td><input class="dop-i" type="number" step="0.01" value="${d.lEDV||''}"></td>
+    <td><input class="dop-i" type="number" step="0.01" value="${d.lRI||''}"></td>
+    <td><button class="btn-icon" onclick="this.closest('tr').remove()">✕</button></td>`;
+  document.getElementById('dopBody').appendChild(tr);
+};
+
+window.addSummary = (v='') => {
+  const l=document.getElementById('summaryList');
+  const d=document.createElement('div'); d.className='point-row';
+  d.innerHTML=`<span class="point-num">${l.children.length+1}</span><input type="text" class="input-f" value="${v}" placeholder="Summary point..."><button class="btn-icon" onclick="this.parentElement.remove()">✕</button>`;
+  l.appendChild(d);
+};
+
+window.addConclusion = (v='') => {
+  const d=document.createElement('div'); d.className='point-row';
+  d.innerHTML=`<span class="point-num">•</span><input type="text" class="input-f" value="${v}" placeholder="Conclusion point..."><button class="btn-icon" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('conclusionList').appendChild(d);
+};
+
+function collectForm(){
+  const g=id=>document.getElementById(id)?.value?.trim()||'';
+  const dopRows=[]; document.querySelectorAll('#dopBody tr').forEach(tr=>{
+    const ins=tr.querySelectorAll('input,select');
+    dopRows.push({time:ins[0].value,ehs:ins[1].value,rCA:ins[2].value,rPSV:ins[3].value,rEDV:ins[4].value,rRI:ins[5].value,lCA:ins[6].value,lPSV:ins[7].value,lEDV:ins[8].value,lRI:ins[9].value});
+  });
+  return {
+    examType:document.getElementById('examTypeHidden').value, center:g('f_center'),
+    name:g('f_name'), mobile:g('f_mobile'), age:g('f_age'), examDate:g('f_date'),
+    fileNo:g('f_fileno'), referringDoctor:g('f_refdoc'), chiefComplaint:g('f_complaint'), history:g('f_history'),
+    corporaCavernosa:g('f_corpora'), leftCADiam:g('f_lca'), rightCADiam:g('f_rca'),
+    flaccidPSVLeft:g('f_psvL'), flaccidPSVRight:g('f_psvR'),
+    drug:g('f_drug'), dose:g('f_dose'), dopRows,
+    additionalNotes:g('f_notes'),
+    summaryPoints:[...document.querySelectorAll('#summaryList input')].map(i=>i.value.trim()).filter(Boolean),
+    conclusionPoints:[...document.querySelectorAll('#conclusionList input')].map(i=>i.value.trim()).filter(Boolean),
+    rtVolume:g('f_rtVol'), rtEcho:g('f_rtEcho'), rtFindings:g('f_rtFind'),
+    ltVolume:g('f_ltVol'), ltEcho:g('f_ltEcho'), ltFindings:g('f_ltFind'),
+    epididymis:g('f_epid'), varicoceleSide:g('f_vSide'), varicoceleGrade:g('f_vGrade'),
+    veinDiamRest:g('f_vRest'), veinDiamValsalva:g('f_vValsa'), varicoceleDoppler:g('f_vDop'),
+  };
+}
+
+window.savePatient = async () => {
+  const data = collectForm();
+  if(!data.name){ toast('Patient name is required','error'); return; }
+  if(!data.mobile){ toast('Mobile number is required','error'); return; }
+  const btn=document.getElementById('saveBtn'); btn.disabled=true; btn.textContent='Saving...';
+  try {
+    let pid = currentId;
+    if(currentId){ await updateDoc(doc(db,'patients',currentId),{...data,updatedAt:serverTimestamp()}); toast('Updated!'); }
+    else { const r=await addDoc(collection(db,'patients'),{...data,createdAt:serverTimestamp()}); pid=r.id; toast('Patient saved!'); }
+    // Upload images
+    const files=[...document.getElementById('imgUpload').files];
+    if(files.length){
+      toast('Uploading images...','info');
+      const existing = currentPatient?.images||[];
+      const newImgs=[];
+      for(const f of files){
+        const fd=new FormData(); fd.append('file',f); fd.append('upload_preset',PRESET); fd.append('folder',`ahmady/${pid}`);
+        const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
+        const d=await res.json(); if(d.secure_url) newImgs.push({url:d.secure_url,name:f.name});
+      }
+      await updateDoc(doc(db,'patients',pid),{images:[...existing,...newImgs]});
+      toast('Images uploaded!');
+    }
+    loadHome();
+  } catch(e){ toast('Error: '+e.message,'error'); }
+  btn.disabled=false; btn.textContent='Save Patient';
+};
+
+// ---- VIEW ----
+window.viewPatient = async (id) => {
+  currentId = id;
+  const snap = await getDoc(doc(db,'patients',id));
+  if(!snap.exists()) return;
+  const p = {id:snap.id,...snap.data()}; currentPatient=p;
+  document.getElementById('v_name').textContent=p.name||'—';
+  document.getElementById('v_fileno').textContent=p.fileNo||'—';
+  document.getElementById('v_mobile').textContent=p.mobile||'—';
+  document.getElementById('v_age').textContent=p.age?p.age+' yrs':'—';
+  document.getElementById('v_date').textContent=p.examDate||'—';
+  document.getElementById('v_type').textContent=p.examType==='doppler-injection'?'Penile Doppler (ICI)':'Scrotal / Varicocele';
+  document.getElementById('v_complaint').textContent=p.chiefComplaint||'—';
+  document.getElementById('v_center').textContent=CENTERS[p.center]?.name||'—';
+  const ig=document.getElementById('v_images');
+  ig.innerHTML=p.images?.length?p.images.map(img=>`<div class="img-thumb" onclick="window.open('${img.url}','_blank')"><img src="${img.url}" alt="${img.name}"><div class="img-name">${img.name}</div></div>`).join(''):'<p style="color:#888;font-size:12px">No images uploaded</p>';
+  showScreen('viewScreen');
+};
+
+window.editPatient = () => {
+  const p=currentPatient; if(!p) return;
+  document.getElementById('formTitle').textContent='Edit Patient';
+  document.getElementById('examTypeHidden').value=p.examType;
+  showSections(p.examType);
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||''};
+  s('f_name',p.name);s('f_mobile',p.mobile);s('f_age',p.age);s('f_date',p.examDate);
+  s('f_fileno',p.fileNo);s('f_refdoc',p.referringDoctor);s('f_complaint',p.chiefComplaint);
+  s('f_history',p.history);s('f_center',p.center);s('f_corpora',p.corporaCavernosa);
+  s('f_lca',p.leftCADiam);s('f_rca',p.rightCADiam);s('f_psvL',p.flaccidPSVLeft);s('f_psvR',p.flaccidPSVRight);
+  s('f_drug',p.drug);s('f_dose',p.dose);s('f_notes',p.additionalNotes);
+  s('f_rtVol',p.rtVolume);s('f_rtEcho',p.rtEcho);s('f_rtFind',p.rtFindings);
+  s('f_ltVol',p.ltVolume);s('f_ltEcho',p.ltEcho);s('f_ltFind',p.ltFindings);
+  s('f_epid',p.epididymis);s('f_vSide',p.varicoceleSide);s('f_vGrade',p.varicoceleGrade);
+  s('f_vRest',p.veinDiamRest);s('f_vValsa',p.veinDiamValsalva);s('f_vDop',p.varicoceleDoppler);
+  document.getElementById('dopBody').innerHTML='';
+  (p.dopRows||Array(5).fill({})).forEach(r=>addDopRow(r));
+  document.getElementById('summaryList').innerHTML='';
+  (p.summaryPoints||['']).forEach(v=>addSummary(v));
+  document.getElementById('conclusionList').innerHTML='';
+  (p.conclusionPoints||['']).forEach(v=>addConclusion(v));
+  document.getElementById('imgPreview').innerHTML=''; document.getElementById('imgUpload').value='';
+  showScreen('formScreen');
+};
+
+window.deletePatient = async () => {
+  if(!confirm('Delete this patient permanently?')) return;
+  await deleteDoc(doc(db,'patients',currentId));
+  toast('Deleted'); loadHome();
+};
+
+// ---- PRINT ----
+window.printReport = () => {
+  const p=currentPatient; if(!p) return;
+  const c=CENTERS[p.center]||CENTERS.daleel;
+  const isICI=p.examType==='doppler-injection';
+  const rows=isICI&&p.dopRows?p.dopRows.map(r=>`<tr><td>${r.time||'—'}</td><td>${r.ehs||'—'}</td><td>${r.rCA||'—'}</td><td>${r.rPSV||'—'}</td><td>${r.rEDV||'—'}</td><td>${r.rRI||'—'}</td><td>${r.lCA||'—'}</td><td>${r.lPSV||'—'}</td><td>${r.lEDV||'—'}</td><td>${r.lRI||'—'}</td></tr>`).join(''):'';
+  const html=`<html><head><meta charset="UTF-8"><style>
+    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;font-size:11px;color:#1a1a2e;padding:18px}
+    .rh{display:flex;justify-content:space-between;border-bottom:3px solid #0f3460;padding-bottom:10px;margin-bottom:12px}
+    .cn{font-size:15px;font-weight:700;color:#0f3460}.ca{font-size:12px;color:#0f3460}.cs{font-size:9px;color:#666;margin-top:2px}
+    .rt{text-align:right}.rt h2{font-size:12px;font-weight:700;color:#0f3460;text-transform:uppercase;letter-spacing:1px}
+    .rt .dl{font-size:10px;color:#666;margin-top:2px}
+    .sh{background:#0f3460;color:#fff;padding:5px 10px;font-size:10px;font-weight:600;text-transform:uppercase;margin:10px 0 6px}
+    table.info{width:100%;border-collapse:collapse;margin-bottom:10px}
+    table.info td{padding:4px 8px;font-size:10.5px}table.info tr:nth-child(odd){background:#f0f4ff}
+    table.data{width:100%;border-collapse:collapse;font-size:9.5px}
+    table.data th{background:#1a4a8a;color:#fff;padding:5px 4px;text-align:center;font-weight:600}
+    table.data td{padding:4px;text-align:center;border-bottom:1px solid #e0e8f0}
+    table.data tr:nth-child(even){background:#f5f8ff}
+    .fb{border:1px solid #c8d8f0;border-radius:5px;padding:9px;margin:5px 0;background:#fafcff}
+    .fb p{font-size:10.5px;line-height:1.6;margin-bottom:3px}
+    .nb{background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:7px;margin:5px 0;font-size:10px}
+    ol.sl{padding-left:16px;margin:5px 0}ol.sl li{font-size:10.5px;line-height:1.7;margin-bottom:2px}
+    .cb{border-left:4px solid #0f3460;padding:7px 12px;background:#f0f4ff;border-radius:0 5px 5px 0;margin:7px 0}
+    .cb p{font-size:11px;line-height:1.7}
+    .leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:8.5px;color:#555;margin:5px 0;padding:5px 9px;background:#f5f8ff;border-radius:4px}
+    .sig{display:flex;justify-content:flex-end;margin-top:18px;padding-top:10px;border-top:1px solid #ddd}
+    .sb{text-align:center;min-width:150px}.sl2{width:150px;border-top:1px solid #333;margin:36px 0 4px}.sb p{font-size:10px}
+    @media print{@page{margin:12mm}}
+  </style></head><body>
+  <div class="rh">
+    <div><div class="cn">${c.name}</div><div class="ca">${c.nameAr} — ${c.city}</div><div class="cs">COLOR DOPPLER ULTRASOUND — CAVERNOSAL ARTERIES</div></div>
+    <div class="rt"><h2>${isICI?'Pharmacodynamic Penile\nColor Doppler Report':'Scrotal & Varicocele\nDoppler Ultrasound Report'}</h2><div class="dl">Date: ${p.examDate||'—'}</div><div class="dl">عيادة د. أحمدى | واتساب: 0564314284</div></div>
+  </div>
+  <div class="sh">Patient Information</div>
+  <table class="info">
+    <tr><td><b>Patient Name:</b> ${p.name||'—'}</td><td><b>Sex:</b> M</td></tr>
+    <tr><td><b>Age:</b> ${p.age||'—'} years</td><td><b>Mobile:</b> ${p.mobile||'—'}</td></tr>
+    <tr><td><b>Referring Doctor:</b> ${p.referringDoctor||'My Patient'}</td><td><b>Record No.:</b> ${p.fileNo||'—'}</td></tr>
+    <tr><td colspan="2"><b>C/O:</b> ${p.chiefComplaint||'—'}</td></tr>
+    ${p.history?`<tr><td colspan="2"><b>History:</b> ${p.history}</td></tr>`:''}
+  </table>
+  ${isICI?`
+  <div class="sh">I) Gray-Scale Findings — Pre-Injection Assessment</div>
+  <div class="fb"><p><b>Corpora Cavernosa:</b> ${p.corporaCavernosa||'—'}</p><p><b>Penile Arteries — Flaccid State:</b> Left CA: ${p.leftCADiam||'—'} mm | Right CA: ${p.rightCADiam||'—'} mm</p></div>
+  <div class="sh">Flaccid State — PSV</div>
+  <table class="data"><tr><th>Parameter</th><th>Left Cavernosal Artery</th><th>Right Cavernosal Artery</th></tr><tr><td>Peak Systolic Velocity — PSV (cm/s)</td><td>${p.flaccidPSVLeft||'—'}</td><td>${p.flaccidPSVRight||'—'}</td></tr></table>
+  <div class="sh">II) Pharmaco-Dynamic — ICI Details</div>
+  <div class="fb"><p><b>Drug:</b> ${p.drug||'—'} &nbsp;&nbsp; <b>Dose (µg):</b> ${p.dose||'—'}</p></div>
+  <table class="data">
+    <tr><th rowspan="2">Time/EHS</th><th colspan="4">Right Cavernosal Artery</th><th colspan="4">Left Cavernosal Artery</th></tr>
+    <tr><th>CA mm</th><th>PSV</th><th>EDV</th><th>RI</th><th>CA mm</th><th>PSV</th><th>EDV</th><th>RI</th></tr>
+    ${rows}
+  </table>
+  <div class="leg"><span>PSV=Peak Systolic Velocity</span><span>EDV=End Diastolic Velocity</span><span>RI=Resistive Index</span><span>CA=Cavernosal Artery Diameter</span><span>EHS=Erection Hardness Score</span><span>ICI=Intracavernosal Injection</span></div>`:`
+  <div class="sh">Scrotal / Testicular Findings</div>
+  <div class="fb">
+    <p><b>Right Testis:</b> Volume: ${p.rtVolume||'—'} ml | Echogenicity: ${p.rtEcho||'—'} | ${p.rtFindings||''}</p>
+    <p><b>Left Testis:</b> Volume: ${p.ltVolume||'—'} ml | Echogenicity: ${p.ltEcho||'—'} | ${p.ltFindings||''}</p>
+    <p><b>Epididymis:</b> ${p.epididymis||'—'}</p>
+  </div>
+  <div class="sh">Varicocele Assessment</div>
+  <div class="fb">
+    <p><b>Side:</b> ${p.varicoceleSide||'—'} | <b>Grade:</b> ${p.varicoceleGrade||'—'}</p>
+    <p><b>Vein Diameter at Rest:</b> ${p.veinDiamRest||'—'} mm | <b>During Valsalva:</b> ${p.veinDiamValsalva||'—'} mm</p>
+    <p><b>Doppler:</b> ${p.varicoceleDoppler||'—'}</p>
+  </div>`}
+  ${p.additionalNotes?`<div class="nb"><b>Additional Notes (NB):</b> ${p.additionalNotes}</div>`:''}
+  <div class="sh">Summary</div>
+  <div class="fb"><ol class="sl">${(p.summaryPoints||[]).filter(Boolean).map(s=>`<li>${s}</li>`).join('')}</ol></div>
+  <div class="sh">Conclusion</div>
+  <div class="cb">${(p.conclusionPoints||[]).filter(Boolean).map(c=>`<p>• ${c}</p>`).join('')}</div>
+  <div class="sig"><div class="sb"><div class="sl2"></div><p><b>Reporting Physician</b></p><p>Dr. Ahmady</p><p>${c.name}</p></div></div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),500)<\/script></body></html>`;
+  const w=window.open('','_blank'); w.document.write(html); w.document.close();
+};
+
+// Image preview
+document.getElementById('imgUpload').addEventListener('change',function(){
+  const p=document.getElementById('imgPreview'); p.innerHTML='';
+  [...this.files].forEach(f=>{const r=new FileReader();r.onload=e=>{const d=document.createElement('div');d.style.cssText='width:70px;height:60px;border-radius:6px;overflow:hidden;border:1px solid #ddd';d.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;p.appendChild(d)};r.readAsDataURL(f)});
+});
+
+// PIN enter key on login
+document.getElementById('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')window.doLogin()});
+</script>
+</body>
+</html>
