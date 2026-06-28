@@ -1,70 +1,63 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Ahmady Archive</title>
+    <title>أرشيف د. أحمدى</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: sans-serif; background-color: #f3f4f6; }
         .screen { display: none; }
-        .screen.active { display: flex; }
+        .screen.active { display: block; }
+        body { background: #f2f5fb; font-family: sans-serif; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
+<body>
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginScreen" class="screen active flex-col items-center justify-center p-8 bg-white shadow-xl rounded-2xl w-96">
-        <h1 class="text-2xl font-bold text-blue-900 mb-6">Dr. Ahmady Archive</h1>
-        <input type="password" id="pinInput" placeholder="Enter PIN" class="w-full p-3 mb-4 border rounded-lg text-center">
-        <button id="loginBtn" class="w-full bg-blue-900 text-white p-3 rounded-lg hover:bg-blue-800 transition">Login</button>
-        <p id="msg" class="mt-4 text-red-500 text-sm"></p>
+    <!-- Login -->
+    <div id="loginScreen" class="screen active min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
+            <h1 class="text-2xl font-bold text-blue-900 mb-6">أرشيف د. أحمدى</h1>
+            <input type="password" id="pin" placeholder="أدخل الرقم السري" class="w-full p-3 mb-4 border rounded-lg text-center outline-none">
+            <button id="loginBtn" class="w-full bg-blue-900 text-white p-3 rounded-lg hover:bg-blue-800">دخول</button>
+        </div>
     </div>
 
-    <!-- MAIN APP SCREEN -->
-    <div id="appScreen" class="screen flex-col w-full max-w-4xl p-8">
-        <h1 class="text-3xl font-bold text-blue-900">Archive System</h1>
-        <p class="text-gray-600">Logged in successfully.</p>
-        <button id="logoutBtn" class="mt-4 bg-gray-500 text-white p-2 rounded w-32">Logout</button>
+    <!-- App Screen -->
+    <div id="appScreen" class="screen min-h-screen p-4">
+        <header class="bg-blue-900 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
+            <h2 class="font-bold">نظام الأرشيف الطبي</h2>
+            <button id="logoutBtn" class="bg-red-500 px-4 py-2 rounded-lg text-sm">خروج</button>
+        </header>
+        <main class="mt-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-xl font-bold mb-4">قائمة المرضى</h2>
+                <div id="patientList" class="space-y-4"></div>
+            </div>
+        </main>
     </div>
 
     <script type="module">
-        console.log("--- [SYSTEM] Starting Initialization ---");
+        // حط بيانات الـ Firebase بتاعتك هنا
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
 
         const PIN = "1234";
-
-        const loginScreen = document.getElementById('loginScreen');
-        const appScreen = document.getElementById('appScreen');
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const pinInput = document.getElementById('pinInput');
-        const msg = document.getElementById('msg');
-
-        // Check if everything is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("--- [SYSTEM] DOMContentLoaded: Ready ---");
-        });
-
-        // Login Logic
-        loginBtn.addEventListener('click', () => {
-            console.log("--- [ACTION] Login clicked ---");
-            if (pinInput.value === PIN) {
-                console.log("--- [SUCCESS] Login success ---");
-                loginScreen.classList.remove('active');
-                appScreen.classList.add('active');
-            } else {
-                msg.textContent = "Incorrect PIN";
-                console.warn("--- [ERROR] Wrong PIN ---");
-            }
-        });
-
-        // Logout Logic
-        logoutBtn.addEventListener('click', () => {
-            console.log("--- [ACTION] Logout clicked ---");
-            location.reload(); // Simple way to reset state
-        });
-
-        console.log("--- [SYSTEM] Initialization complete ---");
+        document.getElementById('loginBtn').onclick = () => {
+            if(document.getElementById('pin').value === PIN) {
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('appScreen').classList.add('active');
+            } else { alert("خطأ في كلمة المرور"); }
+        };
+        document.getElementById('logoutBtn').onclick = () => location.reload();
     </script>
 </body>
 </html>
+```eof
+
+بعد ما تضغط `Commit`، الموقع هيشتغل معاك بالكامل. لو اشتغل معاك، يبقى كدة إحنا خلصنا المهمة.
