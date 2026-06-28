@@ -1,63 +1,21 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أرشيف د. أحمدى</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .screen { display: none; }
-        .screen.active { display: block; }
-        body { background: #f2f5fb; font-family: sans-serif; }
-    </style>
-</head>
-<body>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-    <!-- Login -->
-    <div id="loginScreen" class="screen active min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
-            <h1 class="text-2xl font-bold text-blue-900 mb-6">أرشيف د. أحمدى</h1>
-            <input type="password" id="pin" placeholder="أدخل الرقم السري" class="w-full p-3 mb-4 border rounded-lg text-center outline-none">
-            <button id="loginBtn" class="w-full bg-blue-900 text-white p-3 rounded-lg hover:bg-blue-800">دخول</button>
-        </div>
-    </div>
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC8eJQUgn0wHVM9BND45FgzGuPpZLN55fo",
+  authDomain: "duplex-archive.firebaseapp.com",
+  projectId: "duplex-archive",
+  storageBucket: "duplex-archive.firebasestorage.app",
+  messagingSenderId: "545107391490",
+  appId: "1:545107391490:web:9af5bc4d8deb22e575a31b",
+  measurementId: "G-TX3TLPFWGZ"
+};
 
-    <!-- App Screen -->
-    <div id="appScreen" class="screen min-h-screen p-4">
-        <header class="bg-blue-900 text-white p-4 rounded-lg shadow-lg flex justify-between items-center">
-            <h2 class="font-bold">نظام الأرشيف الطبي</h2>
-            <button id="logoutBtn" class="bg-red-500 px-4 py-2 rounded-lg text-sm">خروج</button>
-        </header>
-        <main class="mt-6">
-            <div class="bg-white p-6 rounded-lg shadow">
-                <h2 class="text-xl font-bold mb-4">قائمة المرضى</h2>
-                <div id="patientList" class="space-y-4"></div>
-            </div>
-        </main>
-    </div>
-
-    <script type="module">
-        // حط بيانات الـ Firebase بتاعتك هنا
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "...",
-            appId: "..."
-        };
-
-        const PIN = "1234";
-        document.getElementById('loginBtn').onclick = () => {
-            if(document.getElementById('pin').value === PIN) {
-                document.getElementById('loginScreen').classList.remove('active');
-                document.getElementById('appScreen').classList.add('active');
-            } else { alert("خطأ في كلمة المرور"); }
-        };
-        document.getElementById('logoutBtn').onclick = () => location.reload();
-    </script>
-</body>
-</html>
-```eof
-
-بعد ما تضغط `Commit`، الموقع هيشتغل معاك بالكامل. لو اشتغل معاك، يبقى كدة إحنا خلصنا المهمة.
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
